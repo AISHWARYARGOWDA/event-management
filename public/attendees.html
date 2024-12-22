@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendee Management</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Attendee Management</h1>
+    </header>
+
+    <div class="container">
+        <nav>
+            <a href="event_management.html">Events</a>
+            <a href="attendees.html">Attendees</a>
+            <a href="tasks.html">Tasks</a>
+        </nav>
+
+        <h2>All Attendees</h2>
+        <div id="attendeesContainer" class="attendees-container"></div>
+
+        <h2>Add New Attendee</h2>
+        <form id="addAttendeeForm">
+            <label for="event">Event:</label>
+            <select id="eventSelect" required>
+                <option value="" disabled selected>Select Event</option>
+            </select>
+            <label for="name">Name:</label>
+            <input type="text" id="name" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+            <button type="submit">Add Attendee</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Event Management</p>
+    </footer>
+
+    <script>
+        const API_BASE_URL = 'https://us-central1-webknot-assignment.cloudfunctions.net/management-api';
+
+        async function fetchAttendees() {
+            const response = await fetch(`${API_BASE_URL}/get_all_attendees`);
+            const attendees = await response.json();
+            const container = document.getElementById('attendeesContainer');
+            container.innerHTML = attendees.map(a => `
+                <div class="attendee-card">
+                    <p><strong>Name:</strong> ${a.name}</p>
+                    <p><strong>Email:</strong> ${a.email}</p>
+                    <button onclick="deleteAttendee('${a.id}')">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        async function deleteAttendee(id) {
+            await fetch(`${API_BASE_URL}/delete_attendee?id=${id}`, { method: 'DELETE' });
+            fetchAttendees();
+        }
+
+        async function populateEventDropdown() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/get_all_events`);
+                const events = await response.json();
+                const eventSelect = document.getElementById('eventSelect');
+                eventSelect.innerHTML = `
+                    <option value="" disabled selected>Select Event</option>
+                    ${events.map(event => `<option value="${event.id}">${event.name}</option>`).join('')}
+                `;
+            } catch (error) {
+                console.error('Error fetching events:', error.message);
+            }
+        }
+
+        document.getElementById('addAttendeeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const attendee = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                assigned_event_id: document.getElementById('eventSelect').value
+            };
+            await fetch(`${API_BASE_URL}/add_attendee`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(attendee)
+            });
+            fetchAttendees();
+        });
+
+        populateEventDropdown();
+        fetchAttendees();
+    </script>
+</body>
+</html>

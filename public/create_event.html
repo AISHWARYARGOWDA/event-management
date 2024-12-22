@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Event</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Create Event</h1>
+        <a href="event_management.html">Back to Events</a>
+    </header>
+
+    <form id="createEventForm">
+        <label for="name">Event Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
+
+        <label for="location">Location:</label>
+        <input type="text" id="location" name="location" required>
+
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required>
+
+        <button type="submit">Create Event</button>
+    </form>
+
+    <script>
+        document.getElementById('createEventForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const eventData = {
+                name: document.getElementById('name').value,
+                description: document.getElementById('description').value,
+                location: document.getElementById('location').value,
+                date: document.getElementById('date').value
+            };
+
+            try {
+                const response = await fetch('https://us-central1-webknot-assignment.cloudfunctions.net/event-management-api/create_event', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(eventData),
+                    mode: 'cors', // Ensure CORS is enabled
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Event created successfully!');
+                    window.location.href = 'event_management.html'; // Redirect to the event management page
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

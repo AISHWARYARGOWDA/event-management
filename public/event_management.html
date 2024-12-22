@@ -1,0 +1,137 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Management</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Event Management System</h1>
+    </header>
+
+    <div class="container">
+        <div class="add-event-btn">
+            <a href="create_event.html">Add New Event</a>
+        </div>
+        
+        <h2>All Events</h2>
+        <div id="eventsContainer" class="events-container">
+           
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Event Management</p>
+    </footer>
+
+    <script>
+        async function fetchEvents() {
+            try {
+                const response = await fetch('https://us-central1-webknot-assignment.cloudfunctions.net/event-management-api/get_all_events');
+                const data = await response.json();
+                const eventsContainer = document.getElementById('eventsContainer');
+                
+                if (data.length === 0) {
+                    eventsContainer.innerHTML = "<p>No events available.</p>";
+                    return;
+                }
+
+                data.forEach(event => {
+                    const eventCard = document.createElement('div');
+                    eventCard.classList.add('event-card');
+                    eventCard.innerHTML = `
+                        <h3>${event.name}</h3>
+                        <p><strong>Description:</strong> ${event.description}</p>
+                        <p><strong>Location:</strong> ${event.location}</p>
+                        <p><strong>Date:</strong> ${event.date}</p>
+                        <div class="event-actions">
+                            <a href="update_event.html?id=${event.id}">Edit</a>
+                            <a href="delete_event.html?id=${event.id}">Delete</a>
+                        </div>
+                    `;
+                    eventsContainer.appendChild(eventCard);
+                });
+            } catch (error) {
+                alert('Error fetching events: ' + error.message);
+            }
+        }
+
+        fetchEvents();
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Management</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Event Management System</h1>
+    </header>
+
+    <div class="container">
+        <nav>
+            <a href="index.html">Events</a>
+            <a href="attendees.html">Attendees</a>
+            <a href="tasks.html">Tasks</a>
+        </nav>
+
+        <div class="add-event-btn">
+            <a href="create_event.html">Add New Event</a>
+        </div>
+        
+        <h2>All Events</h2>
+        <div id="eventsContainer" class="events-container"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Event Management</p>
+    </footer>
+
+    <script>
+        async function fetchEvents() {
+            try {
+                const response = await fetch('https://us-central1-webknot-assignment.cloudfunctions.net/event-management-api/get_all_events');
+                const data = await response.json();
+                const eventsContainer = document.getElementById('eventsContainer');
+                
+                if (data.length === 0) {
+                    eventsContainer.innerHTML = "<p>No events available.</p>";
+                    return;
+                }
+
+                data.forEach(event => {
+                    const eventCard = document.createElement('div');
+                    eventCard.classList.add('event-card');
+                    eventCard.innerHTML = `
+                        <h3>${event.name}</h3>
+                        <p><strong>Description:</strong> ${event.description}</p>
+                        <p><strong>Location:</strong> ${event.location}</p>
+                        <p><strong>Date:</strong> ${event.date}</p>
+                        <div class="event-actions">
+                            <a href="update_event.html?id=${event.id}">Edit</a>
+                            <a href="delete_event.html?id=${event.id}">Delete</a>
+                        </div>
+                    `;
+                    eventsContainer.appendChild(eventCard);
+                });
+            } catch (error) {
+                alert('Error fetching events: ' + error.message);
+            }
+        }
+
+        fetchEvents();
+    </script>
+</body>
+</html>

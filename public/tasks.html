@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Task Tracker</h1>
+    </header>
+
+    <div class="container">
+        <nav>
+            <a href="event_management.html">Events</a>
+            <a href="attendees.html">Attendees</a>
+            <a href="tasks.html">Tasks</a>
+        </nav>
+
+        <h2>Tasks</h2>
+        <div id="tasksContainer" class="tasks-container"></div>
+
+        <h2>Add New Task</h2>
+        <form id="addTaskForm">
+            <label for="event">Event:</label>
+            <select id="eventSelect" required>
+                <option value="" disabled selected>Select Event</option>
+            </select>
+            <label for="name">Task Name:</label>
+            <input type="text" id="name" required>
+            <label for="description">Description:</label>
+            <textarea id="description" required></textarea>
+            <label for="deadline">Deadline:</label>
+            <input type="date" id="deadline" required>
+            <button type="submit">Add Task</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Event Management</p>
+    </footer>
+
+    <script>
+        const API_BASE_URL = 'https://us-central1-webknot-assignment.cloudfunctions.net/management-api';
+
+        async function fetchTasks() {
+            const response = await fetch(`${API_BASE_URL}/get_tasks`);
+            const tasks = await response.json();
+            const container = document.getElementById('tasksContainer');
+            container.innerHTML = tasks.map(t => `
+                <div class="task-card">
+                    <p><strong>Name:</strong> ${t.name}</p>
+                    <p><strong>Description:</strong> ${t.description}</p>
+                    <p><strong>Deadline:</strong> ${t.due_date}</p>
+                    <p><strong>Status:</strong> ${t.status}</p>
+                    <button onclick="updateTaskStatus('${t.id}', 'Completed')">Mark Completed</button>
+                </div>
+            `).join('');
+        }
+
+        async function updateTaskStatus(id, status) {
+            await fetch(`${API_BASE_URL}/update_task`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, status })
+            });
+            fetchTasks();
+        }
+
+        async function populateEventDropdown() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/get_all_events`);
+                const events = await response.json();
+                const eventSelect = document.getElementById('eventSelect');
+                eventSelect.innerHTML = `
+                    <option value="" disabled selected>Select Event</option>
+                    ${events.map(event => `<option value="${event.id}">${event.name}</option>`).join('')}
+                `;
+            } catch (error) {
+                console.error('Error fetching events:', error.message);
+            }
+        }
+
+        document.getElementById('addTaskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const task = {
+                name: document.getElementById('name').value,
+                description: document.getElementById('description').value,
+                event_id: document.getElementById('eventSelect').value,
+                due_date: document.getElementById('deadline').value
+            };
+            await fetch(`${API_BASE_URL}/create_task`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(task)
+            });
+            fetchTasks();
+        });
+
+        populateEventDropdown();
+        fetchTasks();
+    </script>
+</body>
+</html>
